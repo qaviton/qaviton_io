@@ -18,8 +18,10 @@ def worker(tasks: Tasks, queue: Queue):
 
 class ProcessManager:
     def __init__(self, worker=worker):
-        self.CPUs = cpu_count()
+        self.log = Log()
         self.queue = Queue()
+        self.log.queue = self.queue
+        self.CPUs = cpu_count()
         self.worker = worker
 
     def distribute(self, tasks: Tasks)->List[Tasks]:

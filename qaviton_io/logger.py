@@ -14,14 +14,10 @@ init()
 
 class Log:
     _log = {}
-    _queue: Queue = None
-    def __init__(self):
-        self.
 
-    @property.setter
-    def queue(self, value):
-        Log._queue
-        
+    def __init__(self):
+        self.queue: Queue = None
+
     @property
     def log(self):
         return Log._log
