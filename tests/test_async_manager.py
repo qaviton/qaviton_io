@@ -1,4 +1,4 @@
-from qaviton_io.async_manager import Manager
+from qaviton_io.async_manager import AsyncManager
 from requests import get
 from time import time
 
@@ -21,7 +21,7 @@ def test_simple_requests():
                     errors[name] = 1
 
         tasks = [task for _ in range(number_of_tasks)]
-        manager = Manager()
+        manager = AsyncManager()
 
         t = time()
         manager.run(tasks)
