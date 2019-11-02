@@ -1,6 +1,6 @@
-from qaviton_io.async_manager import AsyncManager
-from requests import get
 from time import time
+from requests import get
+from qaviton_io.async_manager import AsyncManager
 
 
 def test_simple_requests():

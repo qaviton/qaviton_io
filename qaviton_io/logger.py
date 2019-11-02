@@ -1,12 +1,12 @@
 from time import time
-from multiprocessing import Queue
+from logging import Logger
+from functools import wraps
 from statistics import median
+from colorama import init, Fore
+from traceback import format_exc
+from multiprocessing import Queue
 from typing import List, Dict, Callable
 from qaviton_io.utils.log import log as default_log
-from colorama import init, Fore
-from functools import wraps
-from logging import Logger
-from traceback import format_exc
 
 
 init()

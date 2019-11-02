@@ -1,8 +1,7 @@
 from time import time
 from typing import List
 from requests import get, Response
-from qaviton_io.logger import Log
-from qaviton_io.async_manager import AsyncManager
+from qaviton_io import AsyncManager, Log
 
 
 def test_simple_requests_with_log_decorator():

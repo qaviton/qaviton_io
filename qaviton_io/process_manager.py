@@ -1,9 +1,9 @@
-from qaviton_io.async_manager import AsyncManager
-from multiprocessing import cpu_count, Queue
-from qaviton_processes import Task
-from qaviton_io.utils.types import Tasks
 from typing import List
 from qaviton_io.logger import Log
+from qaviton_io.types import Tasks
+from qaviton_processes import Task
+from multiprocessing import cpu_count, Queue
+from qaviton_io.async_manager import AsyncManager
 
 
 def worker(tasks: Tasks, queue: Queue):
