@@ -1,1 +1,2 @@
 qaviton-processes>=2019.11.1.13.50.43.917059
+colorama>=0.4.1
