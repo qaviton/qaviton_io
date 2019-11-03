@@ -1,3 +1,4 @@
+from time import time
 from typing import List
 from qaviton_io.logger import Log
 from qaviton_io.types import Tasks
@@ -7,13 +8,12 @@ from qaviton_io.async_manager import AsyncManager
 
 
 def worker(tasks: Tasks, queue: Queue):
-    logger = Log()
-    logger.queue = queue
-    async_manager = AsyncManager()
+    m = AsyncManager()
+    m.log.queue = queue
     try:
-        async_manager.run(tasks)
+        m.run(tasks)
     finally:
-        queue.put(logger.log)
+        queue.put(m.log())
 
 
 class ProcessManager:
@@ -35,15 +35,30 @@ class ProcessManager:
         processes = self.distribute(tasks)
         return [Task(target=self.worker, args=(tasks, self.queue)) for tasks in processes]
 
-    def run_until_complete(self, tasks: Tasks):
+    def run_until_complete(self, tasks: Tasks, timeout):
         processes = self.run(tasks)
-        self.wait_until_tasks_are_done(processes)
+        self.wait_until_tasks_are_done(processes, timeout=timeout)
 
     @staticmethod
-    def wait_until_tasks_are_done(tasks: List[Task]):
+    def wait_until_tasks_are_done(tasks: List[Task], timeout):
         finished_sessions = 0
+        t = time()
         while finished_sessions < len(tasks):
             finished_sessions = 0
-            for session in tasks:
-                if session.is_finished():
-                    finished_sessions += 1
+            if timeout is None:  # careful! processes get stuck TODO: better handling for stuck processes
+                for session in tasks:
+                    if session.is_finished():
+                        finished_sessions += 1
+            try:
+                for session in tasks:
+                    if session.is_finished(timeout=timeout):
+                        finished_sessions += 1
+                    if time()-t > timeout:
+                        raise TimeoutError
+            except TimeoutError as e:
+                for session in tasks:
+                    try:
+                        session.kill()
+                    except:
+                        pass
+                raise e

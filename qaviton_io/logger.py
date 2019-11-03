@@ -18,6 +18,9 @@ class Log:
     def __init__(self):
         self.queue: Queue = None
 
+    def __call__(self)->dict:
+        return self.log
+
     @property
     def log(self):
         return Log._log
@@ -71,6 +74,8 @@ class Log:
                     self.log[name] = log
                 else:
                     for error, durations in log["fail"].items():
+                        if error not in self.log[name]["fail"]:
+                            self.log[name]["fail"][error] = []
                         self.log[name]["fail"][error].extend(durations)
                     self.log[name]["pass"].extend(log["pass"])
         return self

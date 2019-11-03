@@ -2,6 +2,7 @@ from time import time
 from requests import get
 from qaviton_io.types import Tasks
 from qaviton_io import ProcessManager, Log
+from traceback import format_exc
 
 
 log = Log()
@@ -9,14 +10,14 @@ log = Log()
 
 @log.task(exceptions=Exception)
 def task1():
-    r = get("https://google.com")
+    r = get("https://qaviton.com")
     r.raise_for_status()
 
 
 @log.task(exceptions=Exception)
 def multi_task1():
     for _ in range(4):
-        r = get("https://google.com")
+        r = get("https://qaviton.com")
         r.raise_for_status()
 
 
@@ -29,42 +30,45 @@ def task2(url):
 @log.task(exceptions=Exception)
 def multi_task2():
     for url in [
-        "https://google.com",
-        "https://google.co.il",
-        "https://google.com1",
+        "https://qaviton.com",
+        "https://qaviton.co.il",
+        "https://qaviton.com1",
     ]:
         task2(url)
 
 
-def execute_tasks(manager: ProcessManager, tasks: Tasks):
+def execute_tasks(manager: ProcessManager, tasks: Tasks, timeout):
     t = time()
-    manager.run_until_complete(tasks)
+    try:
+        manager.run_until_complete(tasks, timeout=timeout)
+    except TimeoutError:
+        print(format_exc())
     t = time() - t
     print(f'took {round(t, 3)}s')
 
 
 def test_simple_requests_with_multi_processing():
     manager = ProcessManager()
-    execute_tasks(manager, [task1 for _ in range(1)])
-    execute_tasks(manager, [task1 for _ in range(20)])
-    execute_tasks(manager, [task1 for _ in range(80)])
-    execute_tasks(manager, [task1 for _ in range(400)])
+    execute_tasks(manager, [task1 for _ in range(1)], timeout=3)
+    execute_tasks(manager, [task1 for _ in range(20)], timeout=6)
+    execute_tasks(manager, [task1 for _ in range(80)], timeout=9)
+    execute_tasks(manager, [task1 for _ in range(400)], timeout=20)
     manager.log.report()
 
 
 def test_multi_requests_with_multi_processing():
     manager = ProcessManager()
-    execute_tasks(manager, [multi_task1 for _ in range(1)])
-    execute_tasks(manager, [multi_task1 for _ in range(20)])
-    execute_tasks(manager, [multi_task1 for _ in range(80)])
-    execute_tasks(manager, [multi_task1 for _ in range(400)])
+    execute_tasks(manager, [multi_task1 for _ in range(1)], timeout=12)
+    execute_tasks(manager, [multi_task1 for _ in range(20)], timeout=24)
+    execute_tasks(manager, [multi_task1 for _ in range(80)], timeout=36)
+    execute_tasks(manager, [multi_task1 for _ in range(400)], timeout=80)
     manager.log.report()
 
 
 def test_nested_requests_with_log_decorator():
     manager = ProcessManager()
-    execute_tasks(manager, [multi_task2 for _ in range(1)])
-    execute_tasks(manager, [multi_task2 for _ in range(20)])
-    execute_tasks(manager, [multi_task2 for _ in range(80)])
-    execute_tasks(manager, [multi_task2 for _ in range(400)])
+    execute_tasks(manager, [multi_task2 for _ in range(1)], timeout=9)
+    execute_tasks(manager, [multi_task2 for _ in range(20)], timeout=18)
+    execute_tasks(manager, [multi_task2 for _ in range(80)], timeout=27)
+    execute_tasks(manager, [multi_task2 for _ in range(400)], timeout=60)
     manager.log.report(show_errors=False, analyze_fail=True)

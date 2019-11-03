@@ -10,7 +10,7 @@ def test_simple_requests():
 
         def task():
             try:
-                r = get("https://google.com")
+                r = get("https://qaviton.com")
                 r.raise_for_status()
                 rs.append(r)
             except Exception as e:
