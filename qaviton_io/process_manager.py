@@ -7,9 +7,10 @@ from multiprocessing import cpu_count, Queue
 from qaviton_io.async_manager import AsyncManager
 
 
-def worker(tasks: Tasks, queue: Queue):
+def worker(tasks, queue: Queue):
     m = AsyncManager()
     m.log.queue = queue
+    tasks = [lambda: task[0](*task[1:]) if isinstance(task, tuple) else task for task in tasks]
     try:
         m.run(tasks)
     finally:
@@ -31,11 +32,11 @@ class ProcessManager:
         for i, task in enumerate(tasks): processes[i % cpus].append(task)
         return processes
 
-    def run(self, tasks: Tasks) -> List[Task]:
+    def run(self, tasks) -> List[Task]:
         processes = self.distribute(tasks)
         return [Task(target=self.worker, args=(tasks, self.queue)) for tasks in processes]
 
-    def run_until_complete(self, tasks: Tasks, timeout):
+    def run_until_complete(self, tasks, timeout):
         processes = self.run(tasks)
         self.wait_until_tasks_are_done(processes, timeout=timeout)
 
