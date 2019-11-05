@@ -25,6 +25,12 @@ class ProcessManager:
         self.CPUs = cpu_count()
         self.worker = worker
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
     def distribute(self, tasks: Tasks)->List[Tasks]:
         cpus = self.CPUs
         number_of_tasks = len(tasks)
