@@ -1,6 +1,7 @@
 from time import time
 from requests import get
 from qaviton_io.async_manager import AsyncManager
+from tests.utils import server
 
 
 def test_simple_requests():
@@ -10,7 +11,8 @@ def test_simple_requests():
 
         def task():
             try:
-                r = get("https://qaviton.com")
+                with server() as (host, port):
+                    r = get(f'http://{host}:{port}')
                 r.raise_for_status()
                 rs.append(r)
             except Exception as e:
@@ -22,6 +24,7 @@ def test_simple_requests():
 
         tasks = [task for _ in range(number_of_tasks)]
         manager = AsyncManager()
+        manager.log.clear()
 
         t = time()
         manager.run(tasks)

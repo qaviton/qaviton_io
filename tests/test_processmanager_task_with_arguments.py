@@ -3,6 +3,7 @@ from requests import get
 from qaviton_io import ProcessManager, Log
 from traceback import format_exc
 from random import choice
+from tests.utils import server
 
 
 log = Log()
@@ -10,7 +11,10 @@ log = Log()
 
 @log.task()
 def task(url):
-    r = get(url)
+    with server() as (host, port):
+        if url is None:
+            url = f'http://{host}:{port}'
+        r = get(url)
     r.raise_for_status()
 
 
@@ -36,5 +40,6 @@ def execute_tasks(manager: ProcessManager, tasks, timeout):
 
 def test_nested_requests_with_log_decorator():
     manager = ProcessManager()
+    manager.log.clear()
     execute_tasks(manager, [(multi_task, choice(['google', 'youtube', 'netflix'])) for _ in range(20)], timeout=18)
     manager.log.report(show_errors=False, analyze_fail=True)

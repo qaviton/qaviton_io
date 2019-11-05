@@ -3,6 +3,7 @@ from requests import get
 from qaviton_io.types import Tasks
 from qaviton_io import ProcessManager, Log
 from traceback import format_exc
+from tests.utils import server
 
 
 log = Log()
@@ -10,27 +11,32 @@ log = Log()
 
 @log.task(exceptions=Exception)
 def task1():
-    r = get("https://qaviton.com")
+    with server() as (host, port):
+        r = get(f'http://{host}:{port}')
     r.raise_for_status()
 
 
 @log.task(exceptions=Exception)
 def multi_task1():
     for _ in range(4):
-        r = get("https://qaviton.com")
+        with server() as (host, port):
+            r = get(f'http://{host}:{port}')
         r.raise_for_status()
 
 
 @log.task()
 def task2(url):
-    r = get(url)
+    with server() as (host, port):
+        if url is None:
+            url = f'http://{host}:{port}'
+        r = get(url)
     r.raise_for_status()
 
 
 @log.task(exceptions=Exception)
 def multi_task2():
     for url in [
-        "https://qaviton.com",
+        None,
         "https://qaviton.co.il",
         "https://qaviton.com1",
     ]:
@@ -58,6 +64,7 @@ def test_simple_requests_with_multi_processing():
 
 def test_multi_requests_with_multi_processing():
     manager = ProcessManager()
+    manager.log.clear()
     execute_tasks(manager, [multi_task1 for _ in range(1)], timeout=12)
     execute_tasks(manager, [multi_task1 for _ in range(20)], timeout=24)
     execute_tasks(manager, [multi_task1 for _ in range(80)], timeout=36)
@@ -67,6 +74,7 @@ def test_multi_requests_with_multi_processing():
 
 def test_nested_requests_with_log_decorator():
     manager = ProcessManager()
+    manager.log.clear()
     execute_tasks(manager, [multi_task2 for _ in range(1)], timeout=9)
     execute_tasks(manager, [multi_task2 for _ in range(20)], timeout=18)
     execute_tasks(manager, [multi_task2 for _ in range(80)], timeout=27)
