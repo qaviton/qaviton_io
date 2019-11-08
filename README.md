@@ -30,12 +30,9 @@ pip install qaviton-io -U
   
 ```python
 from time import time
-from typing import List
-from requests import get, Response  # lets make use of requests to make async http calls
-from qaviton_io import AsyncManager
+from requests import get  # lets make use of requests to make async http calls
+from qaviton_io import AsyncManager, task
 
-# we can save the responses here
-rs: List[Response] = []
 
 # let's create an async manager
 m = AsyncManager()
@@ -45,11 +42,8 @@ m = AsyncManager()
 # we want to log the result,
 # and make sure that in case of an exception
 # the manager won't stop
-@m.log.task(exceptions=Exception)
-def task():
-    r = get("https://qaviton.com")
-    r.raise_for_status()
-    rs.append(r)
+@task(exceptions=Exception)
+def task(): return get("https://qaviton.com")
 
 
 # this will run async tasks and measure their duration
@@ -66,6 +60,11 @@ run([task for _ in range(1)])
 # now let's run our task 20 times and see how long it takes
 run([task for _ in range(20)])
 
+# we can assert the collected results here
+assert len(m.results) == 21
+for r in m.results:
+    assert r.status_code == 200
+
 # let's view the results in the log report
 m.log.report()
 ```  
@@ -73,25 +72,23 @@ m.log.report()
 #### process manager:  
   
 ```python
+"""
+make sure your tasks are defined at the module level,
+so they can be pickled by multiprocessing
+"""
 from time import time
 from requests import get
 from qaviton_io.types import Tasks
-from qaviton_io import ProcessManager, Log
+from qaviton_io import ProcessManager, task
 from traceback import format_exc
-
-# make sure your tasks are defined at the module level,
-# so they can be pickled by multiprocessing
-
-# first we need to make a log registry
-log = Log()
 
 
 # now we make some tasks
 # this is a nested task
 # we don't want to handle any exceptions
 # so in case of failure the parent will not proceed
-@log.task()
-def task(url):
+@task()
+def task1(url):
     r = get(url)
     r.raise_for_status()
 
@@ -99,14 +96,14 @@ def task(url):
 # this is the prent task
 # we want to handle all exceptions
 # so in case of failure the next task will execute
-@log.task(exceptions=Exception)
+@task(exceptions=Exception)
 def multi_task():
     for url in [
         "https://qaviton.com",
         "https://qaviton.co.il",  # make sure you enter a valid address
         "https://qaviton.com1",  # make sure you enter a valid address
     ]:
-        task(url)
+        task1(url)
 
 
 # let's create a function to execute tasks
@@ -135,7 +132,6 @@ if __name__ == "__main__":
     for timeout in timeouts:
         if timeout:
             print(timeout)
-
 ```  
   
 ## notes:  
