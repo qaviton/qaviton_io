@@ -1,16 +1,13 @@
 from time import time
 from requests import get
-from qaviton_io import ProcessManager, Log
+from qaviton_io import ProcessManager, task
 from traceback import format_exc
 from random import choice
 from tests.utils import server
 
 
-log = Log()
-
-
-@log.task()
-def task(url):
+@task()
+def task1(url):
     with server() as (host, port):
         if url is None:
             url = f'http://{host}:{port}'
@@ -18,14 +15,14 @@ def task(url):
     r.raise_for_status()
 
 
-@log.task(exceptions=Exception)
+@task(exceptions=Exception)
 def multi_task(domain):
     for url in [
         f"https://{domain}.com",
         f"https://{domain}.co.il",
         f"https://{domain}.io",
     ]:
-        task(url)
+        task1(url)
 
 
 def execute_tasks(manager: ProcessManager, tasks, timeout):

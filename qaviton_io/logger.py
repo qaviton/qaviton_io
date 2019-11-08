@@ -25,35 +25,6 @@ class Log:
     def log(self):
         return Log._log
 
-    def task(self, exceptions=tuple()):
-        def decorator(f: Callable):
-            @wraps(f)
-            def wrapper(*args, **kwargs):
-                if f.__name__ not in self.log:
-                    self.log[f.__name__] = {"pass": [], "fail": {}}
-                t = time()
-                try:
-                    r = f(*args, **kwargs)
-                except exceptions:
-                    t = time() - t
-                    e = format_exc()
-                    if e not in self.log[f.__name__]["fail"]:
-                        self.log[f.__name__]["fail"][e] = []
-                    self.log[f.__name__]["fail"][e].append(t)
-                except Exception as error:
-                    t = time() - t
-                    e = format_exc()
-                    if e not in self.log[f.__name__]["fail"]:
-                        self.log[f.__name__]["fail"][e] = []
-                    self.log[f.__name__]["fail"][e].append(t)
-                    raise error
-                else:
-                    t = time() - t
-                    self.log[f.__name__]["pass"].append(t)
-                    return r
-            return wrapper
-        return decorator
-
     @staticmethod
     def clear():
         Log._log = {}
@@ -161,3 +132,33 @@ class Log:
                     for e, n in log["fail"].items():
                         logger.error(f'{Fore.RED}{e}, this error occurred {len(n)} times\n')
         return self
+
+
+def task(exceptions=tuple()):
+    def decorator(f: Callable):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            if f.__name__ not in Log._log:
+                Log._log[f.__name__] = {"pass": [], "fail": {}}
+            t = time()
+            try:
+                r = f(*args, **kwargs)
+            except exceptions:
+                t = time() - t
+                e = format_exc()
+                if e not in Log._log[f.__name__]["fail"]:
+                    Log._log[f.__name__]["fail"][e] = []
+                Log._log[f.__name__]["fail"][e].append(t)
+            except Exception as error:
+                t = time() - t
+                e = format_exc()
+                if e not in Log._log[f.__name__]["fail"]:
+                    Log._log[f.__name__]["fail"][e] = []
+                Log._log[f.__name__]["fail"][e].append(t)
+                raise error
+            else:
+                t = time() - t
+                Log._log[f.__name__]["pass"].append(t)
+                return r
+        return wrapper
+    return decorator

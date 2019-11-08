@@ -1,22 +1,19 @@
 from time import time
 from requests import get
 from qaviton_io.types import Tasks
-from qaviton_io import ProcessManager, Log
+from qaviton_io import ProcessManager, task
 from traceback import format_exc
 from tests.utils import server
 
 
-log = Log()
-
-
-@log.task(exceptions=Exception)
+@task(exceptions=Exception)
 def task1():
     with server() as (host, port):
         r = get(f'http://{host}:{port}')
     r.raise_for_status()
 
 
-@log.task(exceptions=Exception)
+@task(exceptions=Exception)
 def multi_task1():
     for _ in range(4):
         with server() as (host, port):
@@ -24,7 +21,7 @@ def multi_task1():
         r.raise_for_status()
 
 
-@log.task()
+@task()
 def task2(url):
     with server() as (host, port):
         if url is None:
@@ -33,7 +30,7 @@ def task2(url):
     r.raise_for_status()
 
 
-@log.task(exceptions=Exception)
+@task(exceptions=Exception)
 def multi_task2():
     for url in [
         None,
@@ -55,6 +52,7 @@ def execute_tasks(manager: ProcessManager, tasks: Tasks, timeout):
 
 def test_simple_requests_with_multi_processing():
     manager = ProcessManager()
+    manager.log.clear()
     execute_tasks(manager, [task1 for _ in range(1)], timeout=3)
     execute_tasks(manager, [task1 for _ in range(20)], timeout=6)
     execute_tasks(manager, [task1 for _ in range(80)], timeout=9)
