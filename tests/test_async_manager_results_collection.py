@@ -14,7 +14,7 @@ def test_async_manager_results_collection():
         r.raise_for_status()
         return r
 
-    m.run([task for _ in range(20)])
+    m.run([task1 for _ in range(20)])
 
     assert not m.log()['task1']['fail']
     assert len(m.log()['task1']['pass']) == 20

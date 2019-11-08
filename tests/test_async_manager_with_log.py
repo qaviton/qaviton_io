@@ -19,8 +19,8 @@ def test_simple_requests_with_log_decorator():
     t1 = m.run([task1 for _ in range(1)])
     t2 = m.run([task1 for _ in range(20)])
 
-    assert not m.log()['task']['fail']
-    assert len(m.log()['task']['pass']) == 21
+    assert not m.log()['task1']['fail']
+    assert len(m.log()['task1']['pass']) == 21
     assert len(rs) == 21
     assert t2 < t1 * 2
     for r in rs: assert r.status_code == 200
