@@ -8,7 +8,7 @@ def server():
     return Server.text_response_server(
         "HTTP/1.1 200 OK\r\n" +
         "Content-Length: 6\r\n" +
-        "\r\nroflol"
+        "[\"OK\"]"
     )
 
 

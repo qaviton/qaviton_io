@@ -24,7 +24,7 @@ def test_simple_requests_with_log_decorator():
     assert len(rs) == 21
     assert t2 < t1 * 2
     for r in rs: assert r.status_code == 200
-    m.log.report()
+    m.report()
 
 
 def test_multi_requests_with_log_decorator():
@@ -48,32 +48,32 @@ def test_multi_requests_with_log_decorator():
     assert len(rs) == 84
     assert t2 < t1 * 2
     for r in rs: assert r.status_code == 200
-    m.log.report()
+    m.report()
 
 
 def test_nested_requests_with_log_decorator():
-        rs: List[Response] = []
-        m = AsyncManager()
-        m.log.clear()
+    rs: List[Response] = []
+    m = AsyncManager()
+    m.log.clear()
 
-        @task()
-        def task1(url):
-            with server() as (host, port):
-                if url is None:
-                    url = f'http://{host}:{port}'
-                r = get(url)
-            r.raise_for_status()
-            rs.append(r)
+    @task()
+    def task1(url):
+        with server() as (host, port):
+            if url is None:
+                url = f'http://{host}:{port}'
+            r = get(url)
+        r.raise_for_status()
+        rs.append(r)
 
-        @task(exceptions=Exception)
-        def multi_task():
-            for url in [
-                None,
-                "https://qaviton.co.il",
-                "https://qaviton.com1",
-            ]:
-                task1(url)
+    @task(exceptions=Exception)
+    def multi_task():
+        for url in [
+            None,
+            "https://qaviton.co.il",
+            "https://qaviton.com1",
+        ]:
+            task1(url)
 
-        m.run([multi_task for _ in range(1)])
-        m.run([multi_task for _ in range(20)])
-        m.log.report(show_errors=False, analyze_fail=True)
+    m.run([multi_task for _ in range(1)])
+    m.run([multi_task for _ in range(20)])
+    m.report(show_errors=False, analyze_fail=True)

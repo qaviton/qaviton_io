@@ -39,4 +39,4 @@ def test_nested_requests_with_log_decorator():
     manager = ProcessManager()
     manager.log.clear()
     execute_tasks(manager, [(multi_task, choice(['google', 'youtube', 'netflix'])) for _ in range(20)], timeout=18)
-    manager.log.report(show_errors=False, analyze_fail=True)
+    manager.report(show_errors=False, analyze_fail=True)

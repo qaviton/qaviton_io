@@ -35,4 +35,4 @@ for r in m.results:
     assert r.status_code == 200
 
 # let's view the results in the log report
-m.log.report()
+m.report()

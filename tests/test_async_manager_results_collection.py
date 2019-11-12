@@ -20,4 +20,4 @@ def test_async_manager_results_collection():
     assert len(m.log()['task1']['pass']) == 20
     assert len(m.results) == 20
     for r in m.results: assert r.status_code == 200
-    m.log.report()
+    m.report()

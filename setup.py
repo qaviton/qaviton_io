@@ -8,7 +8,7 @@ if __name__ == "__main__":
     with open("README.md", encoding="utf8") as f: long_description = f.read()
     setup(
         name=package_name,
-        version="2019.11.8.10.10.6.714465",
+        version="2019.11.12.17.36.46.68906",
         author="yehonadav",
         author_email="qaviton@gmail.com",
         description="qaviton io",

@@ -66,9 +66,9 @@ for r in m.results:
     assert r.status_code == 200
 
 # let's view the results in the log report
-m.log.report()
+m.report()
 ```  
-  
+   
 #### process manager:  
   
 ```python
@@ -116,7 +116,7 @@ def execute_tasks(tasks: Tasks, timeout):
     except TimeoutError:
         timed_out = format_exc()
     t = time() - t
-    manager.log.report()
+    manager.report()
     print(f'took {round(t, 3)}s\n')
     manager.log.clear()
     return timed_out

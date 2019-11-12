@@ -57,7 +57,7 @@ def test_simple_requests_with_multi_processing():
     execute_tasks(manager, [task1 for _ in range(20)], timeout=6)
     execute_tasks(manager, [task1 for _ in range(80)], timeout=9)
     execute_tasks(manager, [task1 for _ in range(400)], timeout=20)
-    manager.log.report()
+    manager.report()
 
 
 def test_multi_requests_with_multi_processing():
@@ -67,7 +67,7 @@ def test_multi_requests_with_multi_processing():
     execute_tasks(manager, [multi_task1 for _ in range(20)], timeout=24)
     execute_tasks(manager, [multi_task1 for _ in range(80)], timeout=36)
     execute_tasks(manager, [multi_task1 for _ in range(400)], timeout=80)
-    manager.log.report()
+    manager.report()
 
 
 def test_nested_requests_with_log_decorator():
@@ -77,4 +77,4 @@ def test_nested_requests_with_log_decorator():
     execute_tasks(manager, [multi_task2 for _ in range(20)], timeout=18)
     execute_tasks(manager, [multi_task2 for _ in range(80)], timeout=27)
     execute_tasks(manager, [multi_task2 for _ in range(400)], timeout=60)
-    manager.log.report(show_errors=False, analyze_fail=True)
+    manager.report(show_errors=False, analyze_fail=True)

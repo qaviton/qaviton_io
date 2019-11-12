@@ -15,9 +15,6 @@ init()
 class Log:
     _log = {}
 
-    def __init__(self):
-        self.queue: Queue = None
-
     def __call__(self)->dict:
         return self.log
 
@@ -29,14 +26,13 @@ class Log:
     def clear():
         Log._log = {}
 
-    def merge(self):
+    def merge(self, queue: Queue):
         results: List[Dict] = []
-        queue = self.queue
         append = results.append
         result = queue.get
-        empty = queue.empty
+        not_empty = queue.qsize
 
-        while not empty():
+        while not_empty():
             append(result())
 
         for logs in results:
@@ -51,7 +47,15 @@ class Log:
                     self.log[name]["pass"].extend(log["pass"])
         return self
 
-    def analyze(self, analyze_pass=True, analyze_fail=False, analyze_all=False):
+    def analyze(
+        self,
+        analyze_pass=True,
+        analyze_fail=False,
+        analyze_all=False,
+        queue: Queue = None,
+    ):
+        if queue:
+            self.merge(queue)
         for name, log in self.log.items():
             log["err"] = 0
             log["fails"] = []
@@ -79,10 +83,16 @@ class Log:
                 log["med-all"] = median(log["all"])
         return self
 
-    def report(self, analyze_pass=True, analyze_fail=False, analyze_all=False, show_errors=True, logger: Logger = default_log):
-        if self.queue:
-            self.merge()
-        self.analyze(analyze_pass, analyze_fail, analyze_all)
+    def report(
+        self,
+        analyze_pass=True,
+        analyze_fail=False,
+        analyze_all=False,
+        show_errors=True,
+        logger: Logger = default_log,
+        queue: Queue = None,
+    ):
+        self.analyze(analyze_pass, analyze_fail, analyze_all, queue)
         errors_detected = False
         logger.info("REPORT STATISTICS")
         logger.info("")

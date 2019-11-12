@@ -3,14 +3,17 @@ from typing import List
 from qaviton_io.logger import Log
 from qaviton_io.types import Tasks
 from qaviton_processes import Task
-from multiprocessing import cpu_count, Queue
+from multiprocessing import cpu_count, Manager, Queue
 from qaviton_io.async_manager import AsyncManager
+from qaviton_io.utils.log import log as default_log
+from logging import Logger
 
 
 def worker(tasks, queue: Queue):
     m = AsyncManager()
-    m.log.queue = queue
-    tasks = [lambda: task[0](*task[1:]) if isinstance(task, tuple) else task for task in tasks]
+    for i, task in enumerate(tasks):
+        if isinstance(task, tuple):
+            tasks[i] = lambda: task[0](*task[1:])
     try:
         m.run(tasks)
     finally:
@@ -20,7 +23,7 @@ def worker(tasks, queue: Queue):
 class ProcessManager:
     def __init__(self, worker=worker):
         self.log = Log()
-        self.queue = Queue()
+        self.queue = Manager().Queue()  # https://stackoverflow.com/questions/11442892/python-multiprocessing-queue-failure?rq=1 the mp.queue gets the processes stuck
         self.log.queue = self.queue
         self.CPUs = cpu_count()
         self.worker = worker
@@ -30,6 +33,34 @@ class ProcessManager:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
+
+    def analyze(
+        self,
+        analyze_pass=True,
+        analyze_fail=False,
+        analyze_all=False,
+    ): self.log.analyze(
+        analyze_pass=analyze_pass,
+        analyze_fail=analyze_fail,
+        analyze_all=analyze_all,
+        queue=self.queue,
+    ); return self
+
+    def report(
+        self,
+        analyze_pass=True,
+        analyze_fail=False,
+        analyze_all=False,
+        show_errors=True,
+        logger: Logger = default_log,
+    ): self.log.report(
+        analyze_pass=analyze_pass,
+        analyze_fail=analyze_fail,
+        analyze_all=analyze_all,
+        show_errors=show_errors,
+        logger=logger,
+        queue=self.queue,
+    ); return self
 
     def distribute(self, tasks: Tasks)->List[Tasks]:
         cpus = self.CPUs

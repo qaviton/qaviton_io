@@ -42,7 +42,7 @@ def execute_tasks(tasks: Tasks, timeout):
     except TimeoutError:
         timed_out = format_exc()
     t = time() - t
-    manager.log.report()
+    manager.report()
     print(f'took {round(t, 3)}s\n')
     manager.log.clear()
     return timed_out
