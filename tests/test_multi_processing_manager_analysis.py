@@ -112,80 +112,79 @@ def test_multi_processing_manager_analysis():
     with open(report_file, 'w') as f:
         json.dump(manager.log(), f, indent=2)
 
-    try:
-        manager.log.clear()
+    manager.log.clear()
 
-        with open(report_file) as f:
-            analysis = json.load(f)
+    with open(report_file) as f:
+        analysis = json.load(f)
 
-        assert isinstance(analysis, dict)
-        assert 'login'                  in analysis
-        assert 'create_session_locally' in analysis
-        assert '_create_new_session'    in analysis
-        assert 'get'                    in analysis
-        assert 'bad_request'            in analysis
+    assert isinstance(analysis, dict)
+    assert 'login' in analysis
+    assert 'create_session_locally' in analysis
+    assert '_create_new_session' in analysis
+    assert 'get' in analysis
+    assert 'bad_request' in analysis
 
-        assert len(analysis['login']                 ['pass']) == 1
-        assert len(analysis['create_session_locally']['pass']) == 100
-        assert len(analysis['_create_new_session']   ['pass']) == 100
-        assert len(analysis['get']                   ['pass']) == 300
-        assert len(analysis['bad_request']           ['pass']) == 0
+    assert len(analysis['login']['pass']) == 1
+    assert len(analysis['create_session_locally']['pass']) == 100
+    assert len(analysis['_create_new_session']['pass']) == 100
+    assert len(analysis['get']['pass']) == 300
+    assert len(analysis['bad_request']['pass']) == 0
 
-        assert not analysis['login']                 ['fail']
-        assert not analysis['create_session_locally']['fail']
-        assert not analysis['_create_new_session']   ['fail']
-        assert not analysis['get']                   ['fail']
-        assert len(analysis['bad_request']['fail']) == 1
+    assert not analysis['login']['fail']
+    assert not analysis['create_session_locally']['fail']
+    assert not analysis['_create_new_session']['fail']
+    assert not analysis['get']['fail']
+    assert len(analysis['bad_request']['fail']) == 1
 
-        assert analysis['login']                 ['err'] == 0
-        assert analysis['create_session_locally']['err'] == 0
-        assert analysis['_create_new_session']   ['err'] == 0
-        assert analysis['get']                   ['err'] == 0
-        assert analysis['bad_request']           ['err'] == 100
+    assert analysis['login']['err'] == 0
+    assert analysis['create_session_locally']['err'] == 0
+    assert analysis['_create_new_session']['err'] == 0
+    assert analysis['get']['err'] == 0
+    assert analysis['bad_request']['err'] == 100
 
-        assert len(analysis['login']                 ['fails']) == 0
-        assert len(analysis['create_session_locally']['fails']) == 0
-        assert len(analysis['_create_new_session']   ['fails']) == 0
-        assert len(analysis['get']                   ['fails']) == 0
-        assert len(analysis['bad_request']           ['fails']) == 100
+    assert len(analysis['login']['fails']) == 0
+    assert len(analysis['create_session_locally']['fails']) == 0
+    assert len(analysis['_create_new_session']['fails']) == 0
+    assert len(analysis['get']['fails']) == 0
+    assert len(analysis['bad_request']['fails']) == 100
 
-        assert len(analysis['login']                 ['all']) == 1
-        assert len(analysis['create_session_locally']['all']) == 100
-        assert len(analysis['_create_new_session']   ['all']) == 100
-        assert len(analysis['get']                   ['all']) == 300
-        assert len(analysis['bad_request']           ['all']) == 100
+    assert len(analysis['login']['all']) == 1
+    assert len(analysis['create_session_locally']['all']) == 100
+    assert len(analysis['_create_new_session']['all']) == 100
+    assert len(analysis['get']['all']) == 300
+    assert len(analysis['bad_request']['all']) == 100
 
-        assert analysis['login']                 ['ok'] == 1
-        assert analysis['create_session_locally']['ok'] == 100
-        assert analysis['_create_new_session']   ['ok'] == 100
-        assert analysis['get']                   ['ok'] == 300
-        assert analysis['bad_request']           ['ok'] == 0
+    assert analysis['login']['ok'] == 1
+    assert analysis['create_session_locally']['ok'] == 100
+    assert analysis['_create_new_session']['ok'] == 100
+    assert analysis['get']['ok'] == 300
+    assert analysis['bad_request']['ok'] == 0
 
-        assert analysis['login']                 ['total'] == 1
-        assert analysis['create_session_locally']['total'] == 100
-        assert analysis['_create_new_session']   ['total'] == 100
-        assert analysis['get']                   ['total'] == 300
-        assert analysis['bad_request']           ['total'] == 100
+    assert analysis['login']['total'] == 1
+    assert analysis['create_session_locally']['total'] == 100
+    assert analysis['_create_new_session']['total'] == 100
+    assert analysis['get']['total'] == 300
+    assert analysis['bad_request']['total'] == 100
 
-        assert 'max' in analysis['login']
-        assert 'max' in analysis['create_session_locally']
-        assert 'max' in analysis['_create_new_session']
-        assert 'max' in analysis['get']
-        assert 'max' in analysis['bad_request']
-        assert 'min' in analysis['login']
-        assert 'min' in analysis['create_session_locally']
-        assert 'min' in analysis['_create_new_session']
-        assert 'min' in analysis['get']
-        assert 'min' in analysis['bad_request']
-        assert 'avg' in analysis['login']
-        assert 'avg' in analysis['create_session_locally']
-        assert 'avg' in analysis['_create_new_session']
-        assert 'avg' in analysis['get']
-        assert 'avg' in analysis['bad_request']
-        assert 'med' in analysis['login']
-        assert 'med' in analysis['create_session_locally']
-        assert 'med' in analysis['_create_new_session']
-        assert 'med' in analysis['get']
-        assert 'med' in analysis['bad_request']
-    finally:
-        remove(report_file)
+    assert 'max' in analysis['login']
+    assert 'max' in analysis['create_session_locally']
+    assert 'max' in analysis['_create_new_session']
+    assert 'max' in analysis['get']
+    assert 'max' in analysis['bad_request']
+    assert 'min' in analysis['login']
+    assert 'min' in analysis['create_session_locally']
+    assert 'min' in analysis['_create_new_session']
+    assert 'min' in analysis['get']
+    assert 'min' in analysis['bad_request']
+    assert 'avg' in analysis['login']
+    assert 'avg' in analysis['create_session_locally']
+    assert 'avg' in analysis['_create_new_session']
+    assert 'avg' in analysis['get']
+    assert 'avg' in analysis['bad_request']
+    assert 'med' in analysis['login']
+    assert 'med' in analysis['create_session_locally']
+    assert 'med' in analysis['_create_new_session']
+    assert 'med' in analysis['get']
+    assert 'med' in analysis['bad_request']
+
+    remove(report_file)
