@@ -26,6 +26,27 @@ class Log:
     def clear():
         Log._log = {}
 
+    def send_message(self, name, *args):
+        assert args
+        log = self.log
+        if name not in log:
+            log[name] = {'msg': [*args]}
+        elif 'msg' not in log[name]:
+            log[name]['msg'] = [*args]
+        else:
+            log[name]['msg'].extend(args)
+
+    def has_message(self, name):
+        return 'msg' in self.log[name]
+
+    def receive_messages(self, name) -> list:
+        if self.has_message(name):
+            return self.log[name]['msg']
+
+    def receive_all_messages(self):
+        log = self.log
+        return {name: log[name]['msg'] for name in log if 'msg' in log[name]}
+
     def merge(self, queue: Queue):
         results: List[Dict] = []
         append = results.append
@@ -45,6 +66,11 @@ class Log:
                             self.log[name]["fail"][error] = []
                         self.log[name]["fail"][error].extend(durations)
                     self.log[name]["pass"].extend(log["pass"])
+                    if 'msg' in log:
+                        if 'msg' not in self.log[name]:
+                            self.log[name]['msg'] = log['msg']
+                        else:
+                            self.log[name]['msg'].extend(log['msg'])
         return self
 
     def analyze(

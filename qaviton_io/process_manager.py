@@ -34,6 +34,10 @@ class ProcessManager:
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
 
+    def merge(self):
+        self.log.merge(self.queue)
+        return self
+
     def analyze(
         self,
         analyze_pass=True,
@@ -87,16 +91,17 @@ class ProcessManager:
                 for session in tasks:
                     if session.is_finished():
                         finished_sessions += 1
-            try:
-                for session in tasks:
-                    if session.is_finished(timeout=timeout):
-                        finished_sessions += 1
-                    if time()-t > timeout:
-                        raise TimeoutError
-            except TimeoutError as e:
-                for session in tasks:
-                    try:
-                        session.kill()
-                    except:
-                        pass
-                raise e
+            else:
+                try:
+                    for session in tasks:
+                        if session.is_finished(timeout=timeout):
+                            finished_sessions += 1
+                        if time() - t > timeout:
+                            raise TimeoutError
+                except TimeoutError as e:
+                    for session in tasks:
+                        try:
+                            session.kill()
+                        except:
+                            pass
+                    raise e
