@@ -11,6 +11,7 @@ from logging import Logger
 
 def worker(tasks, queue: Queue):
     m = AsyncManager()
+    m.log.clear()
     for i, task in enumerate(tasks):
         if isinstance(task, tuple):
             tasks[i] = lambda: task[0](*task[1:])
