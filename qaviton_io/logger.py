@@ -30,7 +30,7 @@ class Log:
         assert args
         log = self.log
         if name not in log:
-            log[name] = {'msg': [*args]}
+            log[name] = {'fail': {}, 'pass': [], 'msg': [*args]}
         elif 'msg' not in log[name]:
             log[name]['msg'] = [*args]
         else:
